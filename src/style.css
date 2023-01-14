@@ -1,0 +1,28 @@
+body {
+  overflow: hidden;
+}
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  height: 100vh;
+  background-color: aquamarine;
+  padding-right: 10px;
+}
+.card-container {
+  overflow-y: auto;
+}
+.card {
+  --vertical-padding: 12px;
+  background-color: antiquewhite;
+  padding-top: var(--vertical-padding);
+  padding-bottom: var(--vertical-padding);
+  margin-left: 12px;
+  text-align: center;
+  margin-bottom: 2px;
+}
+.heading {
+  text-align: center;
+  position: sticky;
+  top: 0;
+  background-color: white;
+}
