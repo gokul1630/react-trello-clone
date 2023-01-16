@@ -15,64 +15,63 @@ export default function App() {
     setData({ data: columns });
   }, []);
 
-  let datas = [];
-  const onDrag = (key) => (event) => {
-    const uid = parseInt(event.target.dataset?.id, 10);
-
+  let cards = [...data?.data];
+  const onDrag = (columnIndex, cardIndex) => (event) => {
     // search the column, which the onDragStart is fired then remove & transfer the matched id card data to onDrop receiver
-    const filteredData = data?.data?.[key].data.filter((key) => {
-      if (key.id === uid) {
-        event.dataTransfer.setData('item', JSON.stringify(key));
-        return null;
-      }
-      return key;
-    });
 
-    datas = data?.data?.map((item, idx) => {
-      if (key === idx) {
-        return {
-          ...item,
-          data: filteredData,
-        };
-      }
-      return item;
-    });
+    // filter the dragged column
+    const filteredColumn = cards[columnIndex];
+
+    // removed the card from the filtered column
+    const removedCard = filteredColumn.data?.splice(cardIndex, 1)[0];
+
+    // transfer the removed card data to onDrop handler
+    event.dataTransfer.setData('item', JSON.stringify(removedCard));
+
+    // update the array with removed children
+    cards?.splice(columnIndex, 1, filteredColumn);
   };
 
-  const onDrop = (key) => (event) => {
+  const onDrop = (columnIndex) => (event) => {
+    // search the dropped column & add the received data from parent to the array
+
+    const data = [...cards];
+
+    // get the data from the onDrag handler
     const transferredData = JSON.parse(event.dataTransfer.getData('item'));
 
-    const filter = datas?.map((item, idx) => {
-      // search the dropped column & add the received data from parent to the array
-      if (idx === key) {
-        return {
-          ...item,
-          data: [...item.data, transferredData],
-        };
-      }
-      return item;
-    });
-    setData({ data: filter });
+    // filter the dropped column
+    const filter = data[columnIndex];
+
+    // add the transferred data to the filtered column data array
+    const modifiedData = { ...filter, data: [...filter.data, transferredData] };
+
+    // update the modified data to the dropped column
+    data.splice(columnIndex, 1, modifiedData);
+
+    // set the modified data to the state to render the changes on UI
+    setData({ data });
   };
 
+  // prevent the default event to allow the items to drop
   const onDragOver = (event) => event.preventDefault();
 
   return (
     <div className="container">
-      {data?.data?.map((item, index) => {
+      {data?.data?.map((item, columnIndex) => {
         return (
           <div
             onDragOver={onDragOver}
-            onDrop={onDrop(index)}
-            key={index}
+            onDrop={onDrop(columnIndex)}
+            key={columnIndex}
             className="card-container"
           >
             <h3 className="heading">{item.heading}</h3>
-            {item.data.map(({ title, id }) => (
+            {item.data.map(({ title, id }, cardIndex) => (
               <section
                 draggable
                 onDragOver={onDragOver}
-                onDragStart={onDrag(index)}
+                onDragStart={onDrag(columnIndex, cardIndex)}
                 className="card"
                 key={id}
                 data-id={id}
