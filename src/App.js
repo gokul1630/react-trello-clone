@@ -1,9 +1,10 @@
 import React, { useReducer, useEffect } from 'react';
 import './style.css';
-import { columns } from './data.json';
+import { cards, tasks } from './data.json';
 
 const initialState = {
-  data: [],
+  cards: [],
+  tasks: [],
 };
 
 export default function App() {
@@ -12,45 +13,35 @@ export default function App() {
   }, initialState);
 
   useEffect(() => {
-    setData({ data: columns });
+    setData({ cards, tasks });
   }, []);
 
-  let cards = [...data?.data];
-  const onDrag = (columnIndex, cardIndex) => (event) => {
-    // search the column, which the onDragStart is fired then remove & transfer the matched id card data to onDrop receiver
+  const { cards: cardList, tasks: taskList } = data;
 
-    // filter the dragged column
-    const filteredColumn = cards[columnIndex];
+  const onDrag = (cardIndex) => (event) => {
+    // filter the dragged card
+    const draggedCard = taskList[cardIndex];
 
-    // removed the card from the filtered column
-    const removedCard = filteredColumn.data?.splice(cardIndex, 1)[0];
-
-    // transfer the removed card data to onDrop handler
-    event.dataTransfer.setData('item', JSON.stringify(removedCard));
-
-    // update the array with removed children
-    cards?.splice(columnIndex, 1, filteredColumn);
+    // transfer the dragged card data to onDrop handler
+    event.dataTransfer.setData(
+      'item',
+      JSON.stringify({ draggedCard, cardIndex })
+    );
   };
 
   const onDrop = (columnIndex) => (event) => {
-    // search the dropped column & add the received data from parent to the array
-
-    const data = [...cards];
+    const taskData = [...taskList];
 
     // get the data from the onDrag handler
-    const transferredData = JSON.parse(event.dataTransfer.getData('item'));
+    const { draggedCard, cardIndex } = JSON.parse(
+      event.dataTransfer.getData('item')
+    );
 
-    // filter the dropped column
-    const filter = data[columnIndex];
-
-    // add the transferred data to the filtered column data array
-    const modifiedData = { ...filter, data: [...filter.data, transferredData] };
-
-    // update the modified data to the dropped column
-    data.splice(columnIndex, 1, modifiedData);
+    // modify the parentId of the transferred data to the dropped column id
+    taskData.splice(cardIndex, 1, { ...draggedCard, parentId: columnIndex });
 
     // set the modified data to the state to render the changes on UI
-    setData({ data });
+    setData({ tasks: taskData });
   };
 
   // prevent the default event to allow the items to drop
@@ -58,27 +49,31 @@ export default function App() {
 
   return (
     <div className="container">
-      {data?.data?.map((item, columnIndex) => {
+      {cardList?.map(({ id: cardId, heading: cardTitle }) => {
         return (
           <div
             onDragOver={onDragOver}
-            onDrop={onDrop(columnIndex)}
-            key={columnIndex}
+            onDrop={onDrop(cardId)}
+            key={cardId}
             className="card-container"
           >
-            <h3 className="heading">{item.heading}</h3>
-            {item.data.map(({ title, id }, cardIndex) => (
-              <section
-                draggable
-                onDragOver={onDragOver}
-                onDragStart={onDrag(columnIndex, cardIndex)}
-                className="card"
-                key={id}
-                data-id={id}
-              >
-                {title}
-              </section>
-            ))}
+            <h3 className="heading">{cardTitle}</h3>
+            {taskList?.map(({ title: taskTitle, id, parentId }, cardIndex) => {
+              return (
+                parentId === cardId && (
+                  <section
+                    key={id}
+                    data-id={cardIndex}
+                    draggable
+                    className="card"
+                    onDragOver={onDragOver}
+                    onDragStart={onDrag(cardIndex)}
+                  >
+                    {taskTitle}
+                  </section>
+                )
+              );
+            })}
           </div>
         );
       })}
