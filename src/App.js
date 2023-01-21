@@ -19,29 +19,37 @@ export default function App() {
   const { cards: cardList, tasks: taskList } = data;
 
   const onDrag = (cardIndex) => (event) => {
-    // filter the dragged card
-    const draggedCard = taskList[cardIndex];
+    try {
+      // filter the dragged card
+      const draggedCard = taskList[cardIndex];
 
-    // transfer the dragged card data to onDrop handler
-    event.dataTransfer.setData(
-      'item',
-      JSON.stringify({ draggedCard, cardIndex })
-    );
+      // transfer the dragged card data to onDrop handler
+      event.dataTransfer.setData(
+        'item',
+        JSON.stringify({ draggedCard, cardIndex })
+      );
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const onDrop = (columnIndex) => (event) => {
-    const taskData = [...taskList];
+    try {
+      const taskData = [...taskList];
 
-    // get the data from the onDrag handler
-    const { draggedCard, cardIndex } = JSON.parse(
-      event.dataTransfer.getData('item')
-    );
+      // get the data from the onDrag handler
+      const { draggedCard, cardIndex } = JSON.parse(
+        event.dataTransfer.getData('item')
+      );
 
-    // modify the parentId of the transferred data to the dropped column id
-    taskData.splice(cardIndex, 1, { ...draggedCard, parentId: columnIndex });
+      // modify the parentId of the transferred data to the dropped column id
+      taskData.splice(cardIndex, 1, { ...draggedCard, parentId: columnIndex });
 
-    // set the modified data to the state to render the changes on UI
-    setData({ tasks: taskData });
+      // set the modified data to the state to render the changes on UI
+      setData({ tasks: taskData });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // prevent the default event to allow the items to drop
@@ -67,6 +75,7 @@ export default function App() {
                     draggable
                     className="card"
                     onDragOver={onDragOver}
+                    onDrop={onDrop(cardId)}
                     onDragStart={onDrag(cardIndex)}
                   >
                     {taskTitle}
