@@ -44,7 +44,7 @@ export default function App() {
       );
 
       // modify the parentId of the transferred data to the dropped column id and also sort the list
-      if (droppedCardIndex && cardIndex) {
+      if (droppedCardIndex >= 0 && cardIndex >= 0) {
         if (draggedCard.parentId !== columnIndex) {
           taskData.splice(droppedCardIndex, 0, {
             ...draggedCard,
