@@ -82,23 +82,27 @@ export default function App() {
             className="card-container"
           >
             <h3 className="heading">{cardTitle}</h3>
-            {taskList?.map(({ title: taskTitle, id, parentId }, cardIndex) => {
-              return (
-                parentId === cardId && (
-                  <section
-                    key={id}
-                    data-id={cardIndex}
-                    draggable
-                    className="card"
-                    onDragOver={onDragOver}
-                    onDrop={onDrop(cardId, cardIndex)}
-                    onDragStart={onDrag(cardIndex)}
-                  >
-                    {taskTitle}
-                  </section>
-                )
-              );
-            })}
+            <div className="card-inner-container">
+              {taskList?.map(
+                ({ title: taskTitle, id, parentId }, cardIndex) => {
+                  return (
+                    parentId === cardId && (
+                      <section
+                        key={id}
+                        data-id={cardIndex}
+                        draggable
+                        className="card"
+                        onDragOver={onDragOver}
+                        onDrop={onDrop(cardId, cardIndex)}
+                        onDragStart={onDrag(cardIndex)}
+                      >
+                        {taskTitle}
+                      </section>
+                    )
+                  );
+                }
+              )}
+            </div>
           </div>
         );
       })}

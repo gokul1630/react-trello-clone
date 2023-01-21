@@ -9,14 +9,20 @@ body {
   display: flex;
   gap: 10px;
   margin-right: 10px;
+  overflow: hidden;
   overflow-x: auto;
 }
+
 .card-container {
-  overflow-y: auto;
-  flex: 0 0 100px;
-  height: max-content;
-  background-color: rgb(243, 243, 243);
+  overflow-y: scroll;
+  flex: 0 0 200px;
 }
+
+.card-inner-container {
+  background-color: rgb(243, 243, 243);
+  height: fit-content;
+}
+
 .card {
   --vertical-padding: 12px;
   background-color: antiquewhite;
