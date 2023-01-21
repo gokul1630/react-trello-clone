@@ -2,14 +2,15 @@ body {
   overflow: hidden;
 }
 .container {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  display: flex;
   height: 100vh;
   background-color: aquamarine;
-  padding-right: 10px;
+  margin-right: 10px;
+  overflow-x: auto;
 }
 .card-container {
   overflow-y: auto;
+  flex: 0 0 100px;
 }
 .card {
   --vertical-padding: 12px;
@@ -21,8 +22,23 @@ body {
   margin-bottom: 2px;
 }
 .heading {
-  text-align: center;
   position: sticky;
   top: 0;
+  text-align: center;
   background-color: white;
+  margin: 0;
+  padding: 0;
+  padding-bottom: 6px;
+  padding-top: 6px;
+  margin-bottom: 12px;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  width: 3px;
+  background-color: gray;
+  border-radius: 16px;
 }
