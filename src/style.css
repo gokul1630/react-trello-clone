@@ -1,25 +1,29 @@
 body {
   overflow: hidden;
 }
+
 .container {
-  display: flex;
+  background-image: url('https://trello-backgrounds.s3.amazonaws.com/SharedBackground/2400x1600/a65af50752dfb827968973b8d1fb23b6/photo-1673448173957-426fa31b490a.jpg');
   height: 100vh;
-  background-color: aquamarine;
+  background-size: cover;
+  display: flex;
+  gap: 10px;
   margin-right: 10px;
   overflow-x: auto;
 }
 .card-container {
   overflow-y: auto;
   flex: 0 0 100px;
+  height: max-content;
+  background-color: rgb(243, 243, 243);
 }
 .card {
   --vertical-padding: 12px;
   background-color: antiquewhite;
   padding-top: var(--vertical-padding);
   padding-bottom: var(--vertical-padding);
-  margin-left: 12px;
   text-align: center;
-  margin-bottom: 2px;
+  margin-top: 10px;
 }
 .heading {
   position: sticky;
