@@ -18,68 +18,91 @@ export default function App() {
 
   const { cards: cardList, tasks: taskList } = data;
 
-  const onDrag = (cardIndex) => (event) => {
-    try {
-      // filter the dragged card
-      const draggedCard = taskList.splice(cardIndex, 1)[0];
+  // handle drag event of the each column
+  const onDragColumn = (columnIndex) => (event) => {
+    // remove the dragged column data & start transfer the dragged column data to onDrop handler
+    const draggedCard = cardList.splice(columnIndex, 1)[0];
 
-      // transfer the dragged card data to onDrop handler
-      event.dataTransfer.setData(
-        'item',
-        JSON.stringify({ draggedCard, cardIndex })
-      );
-    } catch (error) {
-      console.log(error);
-    }
+    event.dataTransfer.setData(
+      'item',
+      JSON.stringify({ columnIndex, draggedCard })
+    );
   };
 
-  const onDrop = (columnIndex, droppedCardIndex) => (event) => {
+  const onDrag = (cardIndex) => (event) => {
     event.stopPropagation();
     try {
-      const taskData = [...taskList];
+      // filter the dragged task
+      const draggedTask = taskList.splice(cardIndex, 1)[0];
 
-      // get the data from the onDrag handler
-      const { draggedCard, cardIndex } = JSON.parse(
-        event.dataTransfer.getData('item')
+      // transfer the dragged task data to onDrop handler
+      event.dataTransfer.setData(
+        'item',
+        JSON.stringify({ draggedTask, cardIndex })
       );
-
-      // modify the parentId of the transferred data to the dropped column id and also sort the list
-      if (droppedCardIndex >= 0 && cardIndex >= 0) {
-        if (draggedCard.parentId !== columnIndex) {
-          taskData.splice(droppedCardIndex, 0, {
-            ...draggedCard,
-            parentId: columnIndex,
-          });
-        } else {
-          taskData.splice(droppedCardIndex, 0, draggedCard);
-        }
-      } else {
-        // else modify the parentId of the transferred data to the dropped column id
-        taskData.splice(cardIndex, 0, {
-          ...draggedCard,
-          parentId: columnIndex,
-        });
-      }
-
-      // set the modified data to the state to render the changes on UI
-      setData({ tasks: taskData });
     } catch (error) {
       console.log(error);
     }
   };
+
+  const onDrop =
+    (columnId, droppedCardIndex, droppedColumnIndex) => (event) => {
+      event.stopPropagation();
+      try {
+        const taskData = [...taskList];
+        const cardData = [...cardList];
+
+        // get the data from the onDrag handler
+        const {
+          draggedTask,
+          cardIndex,
+          draggedCard,
+          columnIndex: draggedColumnIndex,
+        } = JSON.parse(event.dataTransfer.getData('item'));
+
+        // modify the parentId of the transferred data to the dropped column id and also sort the list
+        if (droppedCardIndex >= 0 && cardIndex >= 0) {
+          if (draggedTask.parentId !== columnId) {
+            taskData.splice(droppedCardIndex, 0, {
+              ...draggedTask,
+              parentId: columnId,
+            });
+          } else {
+            taskData.splice(droppedCardIndex, 0, draggedTask);
+          }
+        } else if (draggedColumnIndex >= 0) {
+          // shift the cards data index accroding to the dropped index
+          cardData.splice(droppedColumnIndex, 0, draggedCard);
+          setData({ cards: cardData });
+        } else {
+          // else modify the parentId of the transferred task data to the dropped column id
+          taskData.splice(cardIndex, 0, {
+            ...draggedTask,
+            parentId: columnId,
+          });
+        }
+
+        // set the modified task data to the state to render the changes on UI
+        setData({ tasks: taskData });
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
   // prevent the default event to allow the items to drop
   const onDragOver = (event) => event.preventDefault();
 
   return (
     <div className="container">
-      {cardList?.map(({ id: cardId, heading: cardTitle }) => {
+      {cardList?.map(({ id: cardId, heading: cardTitle }, columnIndex) => {
         return (
           <div
-            onDragOver={onDragOver}
-            onDrop={onDrop(cardId)}
             key={cardId}
+            draggable
+            onDragOver={onDragOver}
+            onDrop={onDrop(cardId, null, columnIndex)}
             className="card-container"
+            onDragStart={onDragColumn(columnIndex)}
           >
             <h3 className="heading">{cardTitle}</h3>
             <div className="card-inner-container">
@@ -89,11 +112,10 @@ export default function App() {
                     parentId === cardId && (
                       <section
                         key={id}
-                        data-id={cardIndex}
                         draggable
                         className="card"
                         onDragOver={onDragOver}
-                        onDrop={onDrop(cardId, cardIndex)}
+                        onDrop={onDrop(cardId, cardIndex, columnIndex)}
                         onDragStart={onDrag(cardIndex)}
                       >
                         {taskTitle}
